@@ -1,0 +1,3 @@
+Start: Wed, 6 May 2015 4:00pm
+End: Wed, 6 May 2015 6:20pm
+Tasks: Watched introductory videos, logged in to MYSQL database, initialized project folder. Created video_inventory database.Tried for awhile to get a simple button function working with no luck.
