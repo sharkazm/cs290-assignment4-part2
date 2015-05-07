@@ -5,3 +5,8 @@ Tasks: Watched introductory videos, logged in to MYSQL database, initialized pro
 Start: Wed, 6 May 2015 7:00pm
 End: Wed, 6 May 2015 8:20pm
 Tasks: Was approaching problem using javascript, after reading email and forums decided to only use HTML and PHP per professors suggestion, set up the basic form on the front end HTML site, trying to ping it off the PHP site and return to the HTML afterwards.
+
+
+Start: Wed, 6 May 2015 9:30pm
+End: Wed, 6 May 2015 11:20pm
+Tasks: Able to successfully generate a $mysqli object that is communicating with my database and sent a single new video to be added to the database. Created error checks in my PHP file to ensure valid input.

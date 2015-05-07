@@ -6,16 +6,18 @@
 	<title>Failbuster Video</title>  
 </head>
   
-<body style="background-color:blue">
+<body style="background-color:grey">
+
+
 
 <form action="interface.php" method='POST'>
 Please enter the video's name:<br>
-<input type='text' name ='name'>
+<input type='text' name='name'><br>
 Please enter the new video's length:<br>
-<input type='number' min='0'>
-
-<input type='button' value ='Add new video' onclick='input_video()' />
-<input type='text' value ='name' 
+<input type='number' name='length' min='0'><br>
+Please enter the new video's genre:<br>
+<input type= 'text' name='catagory'> <br><br>
+<input type='submit' value ='Add new video' onclick='input_video()' />
 </form>
 
 <div id="testsection"></div>
