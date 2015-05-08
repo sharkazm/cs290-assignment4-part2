@@ -1,6 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">      
+	<title>Failbuster Video</title>  
+	<style>
+		table, td, th{border-style:solid; border-width: medium; border-collapse: collapse; width: 800px; text-align: center;};
+	</style>
+</head>
+  
+<body style="background-color:grey">
+
+	<div id="newVideo" style="float:right; background-color: white; padding:10px; margin:20px">
+		<H4>ADD NEW INVENTORY:</H4>
+		<form action="testSuite.php" method='POST'>
+			Please enter the video's name:<br>
+			<input type='text' name='name'><br>
+			Please enter the new video's length:<br>
+			<input type='number' name='length' min='0'><br>
+			Please enter the new video's genre:<br>
+			<input type= 'text' name='catagory'> <br><br>
+			<input type='submit' value ='Add new video' />
+		</form><br>
+			<form action="testSuite.php" method='GET'>
+			<input type='hidden' name='clear' value='all'>
+			<input type='submit' value="Clear inventory">
+		</form>
+	</div>
 <?php
 ini_set('display_errors', 1);
-header('Content-Type: text/plain');
 
 $errorFree = true;
 
@@ -100,7 +127,38 @@ function deleteTable(){
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
 	if($_GET['clear'] == 'all')
 		deleteTable();
-		header("Location: front_end.html", true);
 }
 
+echo '<br><br>
+	<div id="DynamicSection" style="background-color:white ; width:99%; height:1500px; display: inline-block;  padding:10px; margin-all:20px">
+
+		<table><caption>Failbuster Video Inventory</caption>
+			<tr><th>Name<th>Catagory<th>Length<th>Status</th>';
+
+
+
+	$selection = "SELECT name, catagory, length, rented FROM video_inventory";
+	
+	$queryResults = $mysqli->query($selection);
+	//$queryResults->fetch_all();
+	while($row = $queryResults->fetch_row()){
+		//if($row[3] == "in")
+		//	$inStock = "Available";
+		//else
+		//	$inStock = "Checked Out";
+		echo "<tr><td>$row[0]<td>$row[1]<td>$row[2]";
+		echo "<td><input type='button' onClick='buttonToggle(this)' value='Available'>";
+		echo "<td><button id='delete'>Delete</td></tr>";
+	}	
 ?>
+		</table>
+	
+	</div>
+
+</body>
+
+<html>
+
+
+
+
