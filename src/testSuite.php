@@ -178,27 +178,41 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 echo "<br><br>
 	<div id='DynamicSection' style='background-color:white ; width:99%; height:1500px; display: inline-block;  padding:10px; margin-all:20px'>
 
-		<form action= 'testSuite.php' method='POST'>
-			<select name='var' onchange='this.form.submit()';>
-			<select>
-		</form>
-
 		<table><caption>Failbuster Video Inventory</caption>
 			<tr><th>Name<th>Catagory<th>Length<th>Status</th>";
-
-	$categoryArray = array();
-
-	$selection = "SELECT name, catagory, length, rented FROM video_inventory";
 	
-	$queryResults = $mysqli->query($selection);
-	$cats = $mysqli->fetch_assoc($queryResults);
-
-
-	foreach($categories as $catagory){
-		echo '$catagory';
+	
+	
+	$cats = 'SELECT DISTINCT catagory FROM video_inventory';
+	if($row = $mysqli->query($cats)){
+		echo "<form action= 'testSuite.php' method='POST'>";
+		echo "<input type= 'hidden' name='type' value='filter'>";
+		echo "<select name='var' onchange='this.form.submit()'>";
+		$all = 'All movies';
+		$choice = 'Filter Results';
+		echo "<option value='".$choice."'>".$choice."</option>";
+		echo "<option value='".$all."'>".$all."</option>";
+		while($distinctCatagory = $row->fetch_array(MYSQL_NUM)){
+			echo "<option value='".$distinctCatagory[0]."'>".$distinctCatagory[0]."</option>";
+		}
+		echo'</select></form>';
 	}
 
+	$selection = "SELECT name, catagory, length, rented FROM video_inventory";
 
+	if($_SERVER['REQUEST_METHOD'] == 'POST'){
+		if($_POST['type'] == 'filter'){
+			if($_POST['var'] == "All movies"){
+				$selection = "SELECT name, catagory, length, rented FROM video_inventory";
+			}	
+			else{
+				$choice = $_POST['var'];
+				$selection = "SELECT name, catagory, length, rented FROM video_inventory WHERE catagory='$choice'";
+			}
+		}
+	}
+
+	$queryResults = $mysqli->query($selection);
 	while($row = $queryResults->fetch_row()){
 		if($row[3] == "in")
 			$inStock = "Available";
