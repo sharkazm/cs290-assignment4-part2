@@ -19,6 +19,7 @@
 			<input type='number' name='length' min='0'><br>
 			Please enter the new video's genre:<br>
 			<input type= 'text' name='catagory'> <br><br>
+			<input type= 'hidden' name='type' value='add'>
 			<input type='submit' value ='Add new video' />
 		</form><br>
 			<form action="testSuite.php" method='GET'>
@@ -26,24 +27,50 @@
 			<input type='submit' value="Clear inventory">
 		</form>
 	</div>
+
 <?php
+error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 $errorFree = true;
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    $name = $_POST['name'];
-    $catagory = $_POST['catagory'];
-    $length = $_POST['length'];
-    echo "$name";
-    if(!(strlen($name) > 0)){
-    	echo "Error, Video Name is a required field.\n";
-    	$errorFree = false;
-    }
-    if(!is_numeric($length) && ($length == (int)$length) && !$length){
-    	echo "Error, invalid length. \n";
-    	$errorFree = false;
-    }
+	if($_POST['type'] == 'add'){
+	    $name = $_POST['name'];
+	    $catagory = $_POST['catagory'];
+	    $length = $_POST['length'];
+	    echo "$name";
+	    if(!(strlen($name) > 0)){
+	    	echo "Error, Video Name is a required field.\n";
+	    	$errorFree = false;
+	    }
+	    if(!is_numeric($length) && ($length == (int)$length) && !$length){
+	    	echo "Error, invalid length. \n";
+	    	$errorFree = false;
+	    }
+	}
+}
+
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+	if($_POST['type'] == 'remove'){
+	  	
+		$deleteName = $_POST['ToRemove'];
+	  	$conn=mysqli_connect("oniddb.cws.oregonstate.edu","herrinas-db","3JCPnCFTmsZs8ASZ","herrinas-db");
+    // Check connection
+    	if (mysqli_connect_errno($con)){
+    			echo "Failed to connect to MySQL: " . mysqli_connect_error();
+    	}    
+		// sql to delete a record
+		$sql = "DELETE FROM video_inventory WHERE name='$deleteName'";
+
+		if ($conn->query($sql) === TRUE) {
+		    echo "Record deleted successfully";
+		} else {
+		    echo "Error deleting record: " . $conn->error;
+		}
+
+		$conn->close(); 
+	}
 }
 
 $mysqli = new mysqli("oniddb.cws.oregonstate.edu", "herrinas-db", "3JCPnCFTmsZs8ASZ", "herrinas-db");
@@ -51,7 +78,26 @@ if(!$mysqli || $mysqli->connect_errno){
 	echo "Connection error ".$mysqli->connect_errno . "".$mysqli->connect_error;
 }
 
-if($errorFree == true && $_SERVER['REQUEST_METHOD'] == 'POST'){
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+	if($_POST['type'] == 'edit'){
+		$editName = $_POST['ToEdit'];
+		$inOrOut = $_POST['stockStatus'];
+		if($inOrOut == 'Available')
+			$changeRented = 'out';
+		else
+			$changeRented = 'in';
+		
+		$lineInput = "UPDATE video_inventory SET rented='$changeRented' WHERE name='$editName'";
+	if ($mysqli->query($lineInput) === TRUE) {
+    		echo "Record updated successfully";
+		} 
+		else {
+		    echo "Error updating record: " . $mysqli->error;
+		}  
+	}
+}
+
+if($errorFree == true && $_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['type'] == 'add'){
 	
 	//3 stages of $mysqli prep. taken from pnp.net manual
 	
@@ -129,26 +175,45 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 		deleteTable();
 }
 
-echo '<br><br>
-	<div id="DynamicSection" style="background-color:white ; width:99%; height:1500px; display: inline-block;  padding:10px; margin-all:20px">
+echo "<br><br>
+	<div id='DynamicSection' style='background-color:white ; width:99%; height:1500px; display: inline-block;  padding:10px; margin-all:20px'>
+
+		<form action= 'testSuite.php' method='POST'>
+			<select name='var' onchange='this.form.submit()';>
+			<select>
+		</form>
 
 		<table><caption>Failbuster Video Inventory</caption>
-			<tr><th>Name<th>Catagory<th>Length<th>Status</th>';
+			<tr><th>Name<th>Catagory<th>Length<th>Status</th>";
 
-
+	$categoryArray = array();
 
 	$selection = "SELECT name, catagory, length, rented FROM video_inventory";
 	
 	$queryResults = $mysqli->query($selection);
-	//$queryResults->fetch_all();
+	$cats = $mysqli->fetch_assoc($queryResults);
+
+
+	foreach($categories as $catagory){
+		echo '$catagory';
+	}
+
+
 	while($row = $queryResults->fetch_row()){
-		//if($row[3] == "in")
-		//	$inStock = "Available";
-		//else
-		//	$inStock = "Checked Out";
+		if($row[3] == "in")
+			$inStock = "Available";
+		else
+			$inStock = "Checked Out";
+
 		echo "<tr><td>$row[0]<td>$row[1]<td>$row[2]";
-		echo "<td><input type='button' onClick='buttonToggle(this)' value='Available'>";
-		echo "<td><button id='delete'>Delete</td></tr>";
+		$editName = $row[0];
+		echo "<td><form action= 'testSuite.php' method='POST'><input type= 'hidden' name='type' value='edit'>
+			<input type='hidden' name='ToEdit' value='$editName'><input type='hidden' name='stockStatus' value='$inStock'><input type='submit' value='$inStock'>
+		 	</form>";
+		$removeName = $row[0];
+		echo "<td><form action= 'testSuite.php' method='POST'><input type= 'hidden' name='type' value='remove'>
+			<input type='hidden' name='ToRemove' value='$removeName'><input type='submit' value='Delete'>
+		 	</form></td></tr>";
 	}	
 ?>
 		</table>

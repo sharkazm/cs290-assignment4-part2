@@ -17,3 +17,7 @@ Tasks: Working on input fields for entering a video making sure any combination 
 Start: Wed, 7 May 2015 7:30pm
 End: Wed, 6 May 2015 10:40pm
 Tasks: After realizing I could not access my PHP data without JS, I combined the PHP/HTMl files in to one. The table generation and mass deleting work, now working on the toggle button and individual delete functions.
+
+Start: Wed, 7 May 2015 1:30pm
+End: Wed, 7 May 2015 3:40pm
+Tasks: All functions working except for the dynamically allocated dropdown list. Spent 2 hours attempting to find out to create this, asked the forums and the advice was too technical for me. Still stuck on this at this point.
