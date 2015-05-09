@@ -4,13 +4,15 @@
 	<meta charset="UTF-8">      
 	<title>Failbuster Video</title>  
 	<style>
-		table, td, th{border-style:solid; border-width: medium; border-collapse: collapse; width: 800px; text-align: center;};
+		table, td, th{border-style:solid; background-color:white;border-width: medium; border-color:blue;border-collapse: collapse; width: 1000px; text-align: center; padding: 10px;};
 	</style>
 </head>
   
 <body style="background-color:grey">
-
-	<div id="newVideo" style="float:right; background-color: white; padding:10px; margin:20px">
+	<div style="float:left; background-color: grey; width:60%; padding-top:25px">
+	<img src="Failbuster.png" alt="FailBuster Video">
+	</div>
+	<div id="newVideo" style="float:right; background-color: white; padding:10px; margin:20px; border-style: solid; border-color:blue">
 		<H4>ADD NEW INVENTORY:</H4>
 		<form action="testSuite.php" method='POST'>
 			Please enter the video's name:<br>
@@ -29,8 +31,6 @@
 	</div>
 
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 $errorFree = true;
 
@@ -39,15 +39,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	    $name = $_POST['name'];
 	    $catagory = $_POST['catagory'];
 	    $length = $_POST['length'];
-	    echo "$name";
 	    if(!(strlen($name) > 0)){
 	    	echo "Error, Video Name is a required field.\n";
 	    	$errorFree = false;
 	    }
-	    if(!is_numeric($length) && ($length == (int)$length) && !$length){
-	    	echo "Error, invalid length. \n";
+	    /*if(!is_numeric($length) && ($length == (int)$length) && !$length){
+	    	echo "Error, invalid length. $length\n";
 	    	$errorFree = false;
-	    }
+	    }*/
 	}
 }
 
@@ -56,11 +55,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	  	
 		$deleteName = $_POST['ToRemove'];
 	  	$conn=mysqli_connect("oniddb.cws.oregonstate.edu","herrinas-db","3JCPnCFTmsZs8ASZ","herrinas-db");
-    // Check connection
+   
     	if (mysqli_connect_errno($con)){
     			echo "Failed to connect to MySQL: " . mysqli_connect_error();
     	}    
-		// sql to delete a record
+		
 		$sql = "DELETE FROM video_inventory WHERE name='$deleteName'";
 
 		if ($conn->query($sql) === TRUE) {
@@ -89,7 +88,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		$lineInput = "UPDATE video_inventory SET rented='$changeRented' WHERE name='$editName'";
 	if ($mysqli->query($lineInput) === TRUE) {
-    		echo "Record updated successfully";
+    		echo "    ";
 		} 
 		else {
 		    echo "Error updating record: " . $mysqli->error;
@@ -109,9 +108,9 @@ if($errorFree == true && $_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['type'] 
 		if (!$stmt->bind_param("ss", $name, $catagory)) {
 	    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
 		}
-		if (!$stmt->execute()) {
-	    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-		}
+		//if (!$stmt->execute()) {
+	    //echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+		//}
 	}
 	
 	else if((strlen($catagory) > 0) && ($_POST['length'] != NULL)){
@@ -176,9 +175,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 }
 
 echo "<br><br>
-	<div id='DynamicSection' style='background-color:white ; width:99%; height:1500px; display: inline-block;  padding:10px; margin-all:20px'>
+	<div id='DynamicSection' style='background-color:yellow ; width:97%; height:1500px; display: inline-block;  padding:20px; margin-all:20px; border-style: solid; border-color:blue; margin-right:20px'>
 
-		<table><caption>Failbuster Video Inventory</caption>
+		<table><caption><h2><font color='blue'>Failbuster Video Inventory</font></h2></caption>
 			<tr><th>Name<th>Catagory<th>Length<th>Status</th>";
 	
 	
@@ -193,21 +192,24 @@ echo "<br><br>
 		echo "<option value='".$choice."'>".$choice."</option>";
 		echo "<option value='".$all."'>".$all."</option>";
 		while($distinctCatagory = $row->fetch_array(MYSQL_NUM)){
+			if(strlen($distinctCatagory[0]) > 0)
 			echo "<option value='".$distinctCatagory[0]."'>".$distinctCatagory[0]."</option>";
 		}
 		echo'</select></form>';
 	}
 
 	$selection = "SELECT name, catagory, length, rented FROM video_inventory";
+	$specificGenre = false;
 
 	if($_SERVER['REQUEST_METHOD'] == 'POST'){
-		if($_POST['type'] == 'filter'){
+		if($_POST['type'] == 'filter' || $_POST['type'] == 'edit'){
 			if($_POST['var'] == "All movies"){
 				$selection = "SELECT name, catagory, length, rented FROM video_inventory";
 			}	
 			else{
 				$choice = $_POST['var'];
 				$selection = "SELECT name, catagory, length, rented FROM video_inventory WHERE catagory='$choice'";
+				$specificGenre = true;
 			}
 		}
 	}
@@ -221,8 +223,13 @@ echo "<br><br>
 
 		echo "<tr><td>$row[0]<td>$row[1]<td>$row[2]";
 		$editName = $row[0];
-		echo "<td><form action= 'testSuite.php' method='POST'><input type= 'hidden' name='type' value='edit'>
-			<input type='hidden' name='ToEdit' value='$editName'><input type='hidden' name='stockStatus' value='$inStock'><input type='submit' value='$inStock'>
+		echo "<td><form action= 'testSuite.php' method='POST'><input type= 'hidden' name='type' value='edit'>";
+		if($specificGenre == false)
+			$setGenre = "All movies";
+		else
+			$setGenre = $_POST['var'];
+		echo "<input type='hidden' name='var' value='$setGenre'>";
+		echo "<input type='hidden' name='ToEdit' value='$editName'><input type='hidden' name='stockStatus' value='$inStock'><input type='submit' value='$inStock'>
 		 	</form>";
 		$removeName = $row[0];
 		echo "<td><form action= 'testSuite.php' method='POST'><input type= 'hidden' name='type' value='remove'>
